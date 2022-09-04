@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 // Middlewares
 app.use(cors({ origin: "*" }));
 
-app.use("/api", router);
+app.use("/", router);
 
 app.listen(port, () => {
   console.log(`Url Shortener service backend listening on port ${port}`);
