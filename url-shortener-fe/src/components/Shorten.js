@@ -1,45 +1,112 @@
 import React, { useEffect, useState } from "react";
-import API from "../utils/API";
+import axios from "axios";
 
 function Shorten() {
-  const [formData, setFormData] = useState({
-    url: "",
-    slug: "",
+  const [values, setValues] = useState({
+    originalUrl: "",
+    shortUrl: "",
   });
+  const { originalUrl, shortUrl } = values;
+  const [available, setAvailable] = useState(true);
 
-  const handleChange = async (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+  const handleChange = (name) => (event) => {
+    setValues({ ...values, [name]: event.target.value });
   };
 
-  useEffect(() => API.slugCheck(), [formData]);
+  //Loading state; loading a spinner to render conditionally
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (event) => {
-    console.log(formData);
+  const clickSubmit = (event) => {
     event.preventDefault();
+
+    setIsLoading(true);
+
+    axios
+      .post(`${process.env.REACT_APP_SHORTEN_URL_SERVER}/create`, values)
+      .then((data) => {
+        console.log(data.data);
+      })
+      .catch((err) => {
+        console.log("error", err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
   // TODO Spinner and message below to show if slug is valid
+
+  useEffect(() => {
+    setIsLoading(true);
+    axios
+      .post(`${process.env.REACT_APP_SHORTEN_URL_SERVER}/checkShortUrl`, {
+        shortUrl,
+      })
+      .then((resp) => setAvailable(resp))
+      .finally(() => setIsLoading(false));
+  }, [shortUrl]);
+
+  const CheckingAvailability = () => {
+    if (isLoading) {
+      return (
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      );
+    } else {
+      return <AvailabilityComponent />;
+    }
+  };
+
+  const AvailabilityComponent = () => {
+    if (!available) return <div>Requested Url is not available</div>;
+
+    if (available && shortUrl !== "") {
+      return (
+        <div>
+          <h6>Short Url is available</h6>
+        </div>
+      );
+    } else return <></>;
+  };
+
   return (
-    <div>
-      <label>
-        Url
+    <div style={{ width: "50%", margin: "50px auto" }}>
+      <div className="mb-3">
+        <label htmlFor="exampleInputEmail1" className="form-label">
+          Original Url
+        </label>
         <input
-          name="url"
-          type="string"
-          value={formData.url}
-          onChange={handleChange}
+          className="form-control"
+          type="text"
+          name="originalUrl"
+          value={originalUrl}
+          onChange={handleChange("originalUrl")}
+          placeholder="Type the original Url address to visit"
+          aria-label="default input example"
         />
-      </label>
-      <br />
-      <label>
-        Preferred Slug:
-        <input
-          name="slug"
-          type="string"
-          value={formData.slug}
-          onChange={handleChange}
-        />
-      </label>
-      <button onClick={handleSubmit} />
+      </div>
+      <div className="mb-3">
+        <div>
+          <label htmlFor="exampleInputPassword1" className="form-label">
+            Desired Shortened Url
+          </label>
+          <input
+            type="text"
+            name="shortUrl"
+            value={shortUrl}
+            onChange={handleChange("shortUrl")}
+            className="form-control"
+            id="shortenedUrl"
+          />
+        </div>
+        <div>
+          <CheckingAvailability />
+        </div>
+      </div>
+      <div className="mb-3 form-check"></div>
+      <button onClick={clickSubmit} className="btn btn-primary">
+        Submit
+      </button>
     </div>
   );
 }
