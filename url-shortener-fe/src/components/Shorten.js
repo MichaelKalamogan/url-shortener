@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+import AvailabilityComponent from "./ShortUrlAvailability";
+
 function Shorten() {
   const [values, setValues] = useState({
     originalUrl: "",
@@ -53,20 +55,10 @@ function Shorten() {
         </div>
       );
     } else {
-      return <AvailabilityComponent />;
-    }
-  };
-
-  const AvailabilityComponent = () => {
-    if (!available) return <div>Requested Url is not available</div>;
-
-    if (available && shortUrl !== "") {
       return (
-        <div>
-          <h6>Short Url is available</h6>
-        </div>
+        <AvailabilityComponent shortUrl={shortUrl} available={available} />
       );
-    } else return <></>;
+    }
   };
 
   return (
@@ -77,7 +69,7 @@ function Shorten() {
         </label>
         <input
           className="form-control"
-          type="text"
+          type="url"
           name="originalUrl"
           value={originalUrl}
           onChange={handleChange("originalUrl")}

@@ -1,7 +1,7 @@
 import React from "react";
 import Shorten from "../components/Shorten";
 
-function HomePage() {
+function CreatePage() {
   return (
     <div>
       <Shorten />
@@ -9,4 +9,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default CreatePage;
