@@ -6,9 +6,18 @@ const getController = {
   getUrl: async (req, res) => {
     try {
       const { shortUrl } = req.params;
-      const record = await prisma.url.findUnique({ where: { shortUrl } });
-      if (record) {
-        res.redirect(record.originalUrl);
+      const { originalUrl } = await prisma.url.findUnique({
+        where: { shortUrl },
+      });
+      if (originalUrl) {
+        if (
+          originalUrl.startsWith("http://") ||
+          originalUrl.startsWith("https://")
+        ) {
+          res.redirect(originalUrl);
+        } else {
+          res.redirect("https://" + originalUrl);
+        }
       } else res.status(404).json({ data: "no such address" });
     } catch (error) {
       log.error(error);

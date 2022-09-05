@@ -6,6 +6,8 @@ const createController = {
   create: async (req, res) => {
     try {
       const { originalUrl, shortUrl, userId } = req.body;
+      if (!originalUrl || originalUrl === "")
+        throw new Error("original website is not provided");
 
       const shortUrlExist = await prisma.url.findFirst({
         where: {
@@ -18,7 +20,7 @@ const createController = {
       if (!shortUrlExist) {
         await prisma.url.create({ data: { originalUrl, shortUrl, userId } });
       }
-      return res.status(201).send(shortUrl);
+      return res.status(201).json({originalUrl, shortUrl: `${process.env.SERVER_URL}/${shortUrl}`});
     } catch (error) {
       log.error(`failed to create short URL: ${error}`);
       return res.status(500).send(`${error.message}`);
