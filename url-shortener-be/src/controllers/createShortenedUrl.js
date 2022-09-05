@@ -13,15 +13,15 @@ const createController = {
         },
       });
 
-      if (shortUrlExist) throw new Error("short url alraedy exists");
+      if (shortUrlExist) throw new Error("short url already exists");
 
       if (!shortUrlExist) {
         await prisma.url.create({ data: { originalUrl, shortUrl, userId } });
       }
-      res.status(201).send(shortUrl);
+      return res.status(201).send(shortUrl);
     } catch (error) {
       log.error(`failed to create short URL: ${error}`);
-      res.status(500).send(`${error.message}`);
+      return res.status(500).send(`${error.message}`);
     }
   },
 
@@ -34,13 +34,13 @@ const createController = {
           shortUrl,
         },
       });
-
+      console.log(isExist);
       if (isExist) {
-        res.status(200).json({ success: false });
+        return res.status(200).json({ success: false });
       } else res.status(200).json({ success: true });
     } catch (error) {
       log.error(`failed to check short URL: ${error}`);
-      res.status(500).send(`${error.message}`);
+      return res.status(500).send(`${error.message}`);
     }
   },
 };
